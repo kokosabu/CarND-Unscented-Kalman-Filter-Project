@@ -46,11 +46,31 @@ UKF::UKF() {
 
   /**
   TODO:
-
   Complete the initialization. See ukf.h for other member properties.
-
   Hint: one or more values initialized above might be wildly off...
   */
+
+  // initially set to false, set to true in first call of ProcessMeasurement
+  is_initialized_ = false;
+
+#if 0
+  ///* predicted sigma points matrix
+  MatrixXd Xsig_pred_;
+#endif
+
+#if 0
+  ///* Weights of sigma points
+  VectorXd weights_;
+
+  ///* State dimension
+  int n_x_;
+
+  ///* Augmented state dimension
+  int n_aug_;
+
+  ///* Sigma point spreading parameter
+  double lambda_;
+#endif
 }
 
 UKF::~UKF() {}
@@ -66,6 +86,22 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   Complete this function! Make sure you switch between lidar and radar
   measurements.
   */
+  if(!is_initialized_) {
+    time_us_ = meas_package.timestamp_;
+    is_initialized_ = true;
+    return;
+  }
+  Prediction(0);
+  if(meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    float px = meas_package.raw_measurements_[0];
+    float py = meas_package.raw_measurements_[1];
+    UpdateLidar(meas_package);
+  } else {
+    float ro     = meas_package.raw_measurements_[0];
+    float theta  = meas_package.raw_measurements_[0];
+    float ro_dot = meas_package.raw_measurements_[0];
+    UpdateRadar(meas_package);
+  }
 }
 
 /**
